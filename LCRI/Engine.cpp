@@ -68,7 +68,7 @@ void Engine::Render()
 		//Signaling to the Main thread that Rendering is about to begin
 		RenderStartedMutex.unlock();
 		//Clear the window
-		MainWindow->clear(Color::Black);
+		MainWindow->clear(Color::White);
 		//Main Rendering loop
 		//iterates throught all registered objects and draw them layer by layer
 		for (int i = 0; i < 7; i++)
@@ -151,7 +151,7 @@ Engine::Engine(void (Engine::**MainPtr)())
 		+ ", Title = " + TITLE);
 #pragma endregion
 	//Intialization of window
-	MainWindow = new RenderWindow(VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), TITLE);
+	MainWindow = new RenderWindow(VideoMode::getDesktopMode(), TITLE, Style::Fullscreen);
 	//Deactivating Window from Main Thread
 	MainWindow->setActive(false);
 	//Launching RenderThread
