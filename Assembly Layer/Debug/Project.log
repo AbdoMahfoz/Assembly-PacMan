@@ -1,0 +1,25 @@
+﻿Build started 12/6/2013 3:12:41 PM.
+     1>Project "E:\FCIS\Teaching\Assembly Language\Labs\Lab9\Export to DLL\DllProject_template\Project.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Debug\Project.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       _MASM:
+         Assembling [Inputs]...
+         cmd.exe /C "C:\Users\Nora\AppData\Local\Temp\tmp21b77319f8cf40be9eed68d8fd327bc4.cmd"
+         ml.exe /c /nologo /Zi /Fo"Debug\main.obj" /I "C:\Irvine" /W3 /errorReport:prompt  /Tamain.asm
+     1>main.asm(16): warning A6004: procedure argument or local not referenced : hInstance
+     1>main.asm(16): warning A6004: procedure argument or local not referenced : fdwReason
+     1>main.asm(16): warning A6004: procedure argument or local not referenced : lpReserved
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\FCIS\Teaching\Assembly Language\Labs\Lab9\Export to DLL\DllProject_template\Debug\Project.dll" /NOLOGO /LIBPATH:C:\Irvine user32.lib irvine32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"E:\FCIS\Teaching\Assembly Language\Labs\Lab9\Export to DLL\DllProject_template\\main.def" /MANIFEST /ManifestFile:"Debug\Project.dll.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"E:\FCIS\Teaching\Assembly Language\Labs\Lab9\Export to DLL\DllProject_template\Debug\Project.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\FCIS\Teaching\Assembly Language\Labs\Lab9\Export to DLL\DllProject_template\Debug\Project.lib" /MACHINE:X86 /DLL Debug\main.obj
+            Creating library E:\FCIS\Teaching\Assembly Language\Labs\Lab9\Export to DLL\DllProject_template\Debug\Project.lib and object E:\FCIS\Teaching\Assembly Language\Labs\Lab9\Export to DLL\DllProject_template\Debug\Project.exp
+         Project.vcxproj -> E:\FCIS\Teaching\Assembly Language\Labs\Lab9\Export to DLL\DllProject_template\Debug\Project.dll
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"E:\FCIS\Teaching\Assembly Language\Labs\Lab9\Export to DLL\DllProject_template\Debug\Project.dll;#2" /manifest Debug\Project.dll.intermediate.manifest
+       FinalizeBuildStatus:
+         Deleting file "Debug\Project.unsuccessfulbuild".
+         Touching "Debug\Project.lastbuildstate".
+     1>Done Building Project "E:\FCIS\Teaching\Assembly Language\Labs\Lab9\Export to DLL\DllProject_template\Project.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.67
