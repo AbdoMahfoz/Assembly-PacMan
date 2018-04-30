@@ -1,6 +1,7 @@
 include irvine32.inc
 .data
 Key DWORD ?
+LastKey DWORD ?
 State DWORD ?
 Grid DWORD ?
 sWidth DWORD ?
@@ -137,11 +138,15 @@ InitializeEnemyData PROC pEnemyNumber:DWORD, pEX1:DWORD, pEX2:DWORD, pEY1:DWORD,
 	mov E4TY, EAX
 	ret
 InitializeEnemyData ENDP
-;------------Pacman-Translations--------------
+;-------------------------------Helper-------
 TranslatePosition PROC X1:DWORD, X2:DWORD, Y1:DWORD, Y2:DWORD
 
 TranslatePosition ENDP
 
+ValidatePosition PROC X1:DWORD, X2:DWORD, Y1:DWORD, Y2:DWORD
+	
+ValidatePosition ENDP
+;------------Pacman-Translations--------------
 MovePacMan PROC
 
 MovePacMan ENDP
