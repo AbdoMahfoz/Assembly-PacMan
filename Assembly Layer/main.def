@@ -1,2 +1,12 @@
-EXPORTS		
-DebugFunction @1
+EXPORTS
+IntializeStateData @1
+InitalizeGridData @2
+IntializePlayerData @3
+InitalizeEnemyData @4
+TranslatePosition @5
+MovePacMan @6
+CheckFood @7
+CheckDeath @8
+AIMegaController @9
+AIController @10
+DebugFunction @11
