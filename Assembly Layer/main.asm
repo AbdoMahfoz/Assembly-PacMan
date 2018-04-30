@@ -37,6 +37,9 @@ E3TX DWORD ?
 E3TY DWORD ?
 E4TX DWORD ?
 E4TY DWORD ?
+Empty_Number = 0
+Wall_Number = 1
+Food_Number = 2
 .code
 ;-----------------------------------------------------------------------
 ;------------------------Data-Initialzers-------------------------------
