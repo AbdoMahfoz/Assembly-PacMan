@@ -40,14 +40,14 @@ E4TY DWORD ?
 .code
 ;-----------------------------------------------------------------------
 ;------------------------Data-Initialzers-------------------------------
-IntializeStateData PROC pKey:DWORD, pState:PTR DWORD
+InitializeStateData PROC pKey:DWORD, pState:PTR DWORD
 	mov EAX, pKey
 	mov Key, EAX
 	mov EAX, pState
 	mov State, EAX
 	ret
-IntializeStateData ENDP
-InitalizeGridData PROC pGrid:PTR DWORD, pWidth:DWORD, pHeight:DWORD
+InitializeStateData ENDP
+InitializeGridData PROC pGrid:PTR DWORD, pWidth:DWORD, pHeight:DWORD
 	mov EAX, pGrid
 	mov Grid, EAX
 	mov EAX, pWidth
@@ -55,8 +55,8 @@ InitalizeGridData PROC pGrid:PTR DWORD, pWidth:DWORD, pHeight:DWORD
 	mov EAX, pHeight
 	mov sHeight, EAX
 	ret
-InitalizeGridData ENDP
-IntializePlayerData PROC pPX1:DWORD, pPX2:DWORD, pPY1:DWORD, pPY2:DWORD, pPTX:PTR DWORD, pPTY:PTR DWORD
+InitializeGridData ENDP
+InitializePlayerData PROC pPX1:DWORD, pPX2:DWORD, pPY1:DWORD, pPY2:DWORD, pPTX:PTR DWORD, pPTY:PTR DWORD
 	mov EAX, pPX1
 	mov PX1, EAX
 	mov EAX, pPX2
@@ -70,8 +70,8 @@ IntializePlayerData PROC pPX1:DWORD, pPX2:DWORD, pPY1:DWORD, pPY2:DWORD, pPTX:PT
 	mov EAX, pPTY
 	mov PTY, EAX
 	ret
-IntializePlayerData ENDP
-InitalizeEnemyData PROC pEnemyNumber:DWORD, pEX1:DWORD, pEX2:DWORD, pEY1:DWORD, pEY2:DWORD, pETX:PTR DWORD, pETY:PTR DWORD
+InitializePlayerData ENDP
+InitializeEnemyData PROC pEnemyNumber:DWORD, pEX1:DWORD, pEX2:DWORD, pEY1:DWORD, pEY2:DWORD, pETX:PTR DWORD, pETY:PTR DWORD
 	cmp pEnemyNumber, 1
 	jne I1
 		mov EAX, pEX1
@@ -133,9 +133,9 @@ InitalizeEnemyData PROC pEnemyNumber:DWORD, pEX1:DWORD, pEX2:DWORD, pEY1:DWORD, 
 	mov EAX, pETY
 	mov E4TY, EAX
 	ret
-InitalizeEnemyData ENDP
+InitializeEnemyData ENDP
 ;------------Pacman-Translations--------------
-TranslatePosition PROC
+TranslatePosition PROC X1:DWORD, X2:DWORD, Y1:DWORD, Y2:DWORD
 
 TranslatePosition ENDP
 
@@ -155,7 +155,7 @@ AIMegaController PROC
 
 AIMegaController ENDP
 
-AIController PROC EX1:DWORD, EX2:DWORD, EY1:DWORD, EY2:DWORD
+AIController PROC EX1:DWORD, EX2:DWORD, EY1:DWORD, EY2:DWORD, ETX: DWORD, ETY, DWORD
 
 AIController ENDP
 ;----------------------------------------------

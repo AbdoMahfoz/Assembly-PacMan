@@ -1,12 +1,10 @@
 EXPORTS
-IntializeStateData @1
-InitalizeGridData @2
-IntializePlayerData @3
-InitalizeEnemyData @4
-TranslatePosition @5
-MovePacMan @6
-CheckFood @7
-CheckDeath @8
-AIMegaController @9
-AIController @10
-DebugFunction @11
+InitializeStateData @1
+InitializeGridData @2
+InitializePlayerData @3
+InitializeEnemyData @4
+MovePacMan @5
+CheckFood @6
+CheckDeath @7
+AIMegaController @8
+DebugFunction @9
