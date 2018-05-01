@@ -142,137 +142,122 @@ InitializeEnemyData PROC pEnemyNumber:DWORD, pEX1:DWORD, pEX2:DWORD, pEY1:DWORD,
 InitializeEnemyData ENDP
 ;-------------------------------Helper-------
 TranslatePosition PROC X1:DWORD, X2:DWORD, Y1:DWORD, Y2:DWORD
-mov eax,X2
-cmp eax,0
-jz Round_x
+	mov eax,X2
+	cmp eax,0
+	jz Round_x
 Continue:
-mov ebx,Y2
-cmp ebx,0
-jz Round_Y
-jmp End_Function
+	mov ebx,Y2
+	cmp ebx,0
+	jz Round_Y
+	jmp End_Function
 Round_X:
-inc eax
-mov X2,0
-jmp Continue
+	inc eax
+	mov X2,0
+	jmp Continue
 Round_Y:
-inc ebx
-mov Y2,0
-End_Function:
-ret
+	inc ebx
+	mov Y2,0
+	End_Function:
+	ret
 TranslatePosition ENDP
 
 ValidatePosition PROC X1:DWORD ,Y1:DWORD
-cmp X1,sWidth
-jne Next
-jmp Not_Valid
+	cmp X1,sWidth
+	jne Next
+	jmp Not_Valid
 Next:
-cmp X1,0
-jae next2
-jmp Not_Valid
+	cmp X1,0
+	jae next2
+	jmp Not_Valid
 next2:
-cmp Y1,sHeight
-jne next3
-jmp Not_Valid
+	cmp Y1,sHeight
+	jne next3
+	jmp Not_Valid
 next3:
-cmp Y1,0
-jae next4
-jmp Not_Valid
+	cmp Y1,0
+	jae next4
+	jmp Not_Valid
 next4:
-mov eax,X1
-mov ebx,sWidth
-mul ebx
-mov ebx,offset Grid
-add ebx,eax
-mov eax,[ebx]
-cmp eax,Wall_Number
-jz Not_Valid
-mov valid,1
-jmp End_Function
+	mov eax,X1
+	mov ebx,sWidth
+	mul ebx
+	mov ebx,offset Grid
+	add ebx,eax
+	mov eax,[ebx]
+	cmp eax,Wall_Number
+	jz Not_Valid
+	mov valid,1
+	jmp End_Function
 Not_Valid:
-mov valid,0
+	mov valid,0
 End_Function:
-ret 
+	ret 
 ValidatePosition ENDP
-GenerateRandomNumber PROC Range:Dword
-	push eax 
-	call Randomize ;#5 Generates the Seed 
-	mov eax, Range ;#5 sets the range of the random numbers
+GenerateRandomNumber PROC 
+	push eax ;saves eax 
+	call Randomize ;Generates the Seed 
+	mov eax, 4 ;sets the range of the random numbers
 	call RandomRange 
-	inc eax
-	mov RandomNumber , eax ;#? moves the random number to the Random Number Variable  
-	pop eax
+	mov RandomNumber , eax ;moves the random number to the Random Number Variable  .
+	pop eax ;resotors eax
 	ret
 GenerateRandomNumber ENDP
 ;------------Pacman-Translations--------------
 MovePacMan PROC
+	push PX1
+	push PX2
+	push PY1
+	push PY2
 
-
-push PX1
-push PX2
-push PY1
-push PY2
-
-
-cmp Key,1
-jz Move_up
-cmp Key,2
-jz Move_Right
-cmp Key,3
-jz Move_Down
-cmp Key,4
-jz Move_Left
-jmp Out_of_Range
-
-
+	cmp Key,1
+	jz Move_up
+	cmp Key,2
+	jz Move_Right
+	cmp Key,3
+	jz Move_Down
+	cmp Key,4
+	jz Move_Left
+	jmp Out_of_Range
 
 Move_up:
-add PY2,1
-call TranslatePosition,PX1,PX2,PY1,PY2
-cmp PY2,0
-jz next
-jmp check_Validation
+	add PY2,1
+	invoke TranslatePosition,PX1,PX2,PY1,PY2
+	cmp PY2,0
+	jz next
+	jmp check_Validation
 next:
-sub ebx,1
-jmp check_Validation
-
+	sub ebx,1
+	jmp check_Validation
 
 Move_Right:
-add px2,1
-call TranslatePosition,PX1,PX2,PY1,PY2
-cmp PX2,0
-jz next1
-jmp check_Validation
+	add px2,1
+	Invoke TranslatePosition,PX1,PX2,PY1,PY2
+	cmp PX2,0
+	jz next1
+	jmp check_Validation
 next1:
-inc eax
-jmp check_Validation
-
-
+	inc eax
+	jmp check_Validation
 Move_Down:
-add PY2,1
-call TranslatePosition,PX1,PX2,PY1,PY2
-cmp PY2,0
-jz next2
-jmp check_Validation
+	add PY2,1
+	Invoke TranslatePosition,PX1,PX2,PY1,PY2
+	cmp PY2,0
+	jz next2
+	jmp check_Validation
 next2:
-add ebx,1
-jmp check_Validation
-
-
-
+	add ebx,1
+	jmp check_Validation
 Move_Left:
-add px2,1
-call TranslatePosition,PX1,PX2,PY1,PY2
-cmp PX2,0
-jz next3
-jmp check_Validation1
+	add px2,1
+	Invoke TranslatePosition,PX1,PX2,PY1,PY2
+	cmp PX2,0
+	jz next3
+	jmp check_Validation1
 next3:
-inc eax
-jmp check_Validation
-
-
+	inc eax
+	jmp check_Validation
 check_Validation:
-call Validation,eax,ebx
-
+	INVOKE Validation,eax,ebx
 
 MovePacMan ENDP
 ;------------Checkers-------------------------
@@ -289,7 +274,53 @@ AIMegaController PROC
 AIMegaController ENDP
 
 AIController PROC EX1:DWORD, EX2:DWORD, EY1:DWORD, EY2:DWORD, ETX: DWORD, ETY, DWORD
+;ValidatePosition
+;TranslatePosition
+;RandomNumber
+	Start:
+	Invoke TranslatePosition EX1,EX2,EY1,EY2
+	cmp RandomNumber , 0
+	Je MoveDown
+	cmp RandomNumber , 1
+	Je MoveRight
+	cmp RandomNumber , 2
+	Je MoveUp
+	cmp RandomNumber , 3
+	Je MoveLeft
+	MoveDown: 
+		Inc ebx
+		jmp Cont
+	MoveUp: 
+		Dec ebx
+		jmp Cont
+	MoveRight
+		inc eax
+		jmp Cont
+	MoveLeft
+		dec eax
+		jmp Cont
+	Cont : 
+	push eax
+	push ebx
+	invoke ValidatePosition eax, ebx 
+	cmp valid,1
+	je correct 
+	jmp Start
+	correct:
+	pop ebx
+	pop eax 
+	push eax
+	mov edx , OFFset Grid 
+	mov esi , sWidth
+	mul esi 
+	mov ETX , eax 
+	mov edx , OFFset Grid
+	add edx, ebx
+	mov ETY , edx 
+	pop eax 
+	ret
 call GenerateRandomNumber
+
 
 AIController ENDP
 ;----------------------------------------------
