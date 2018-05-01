@@ -1,7 +1,8 @@
 include irvine32.inc
 .data
+valid DWORD ?
 Key DWORD ?
-LastKey DWORD ?
+LastKey DWORD 0
 State DWORD ?
 Grid DWORD ?
 sWidth DWORD ?
@@ -141,11 +142,56 @@ InitializeEnemyData PROC pEnemyNumber:DWORD, pEX1:DWORD, pEX2:DWORD, pEY1:DWORD,
 InitializeEnemyData ENDP
 ;-------------------------------Helper-------
 TranslatePosition PROC X1:DWORD, X2:DWORD, Y1:DWORD, Y2:DWORD
-
+mov eax,X2
+cmp eax,0
+jz Round_x
+Continue:
+mov ebx,Y2
+cmp ebx,0
+jz Round_Y
+jmp End_Function
+Round_X:
+inc eax
+mov X2,0
+jmp Continue
+Round_Y:
+inc ebx
+mov Y2,0
+End_Function:
+ret
 TranslatePosition ENDP
 
-ValidatePosition PROC X1:DWORD, X2:DWORD, Y1:DWORD, Y2:DWORD
-	
+ValidatePosition PROC X1:DWORD ,Y1:DWORD
+cmp X1,sWidth
+jne Next
+jmp Not_Valid
+Next:
+cmp X1,0
+jae next2
+jmp Not_Valid
+next2:
+cmp Y1,sHeight
+jne next3
+jmp Not_Valid
+next3:
+cmp Y1,0
+jae next4
+jmp Not_Valid
+next4:
+mov eax,X1
+mov ebx,sWidth
+mul ebx
+mov ebx,offset Grid
+add ebx,eax
+mov eax,[ebx]
+cmp eax,Wall_Number
+jz Not_Valid
+mov valid,1
+jmp End_Function
+Not_Valid:
+mov valid,0
+End_Function:
+ret 
 ValidatePosition ENDP
 GenerateRandomNumber PROC Range:Dword
 	push eax 
@@ -159,6 +205,74 @@ GenerateRandomNumber PROC Range:Dword
 GenerateRandomNumber ENDP
 ;------------Pacman-Translations--------------
 MovePacMan PROC
+
+
+push PX1
+push PX2
+push PY1
+push PY2
+
+
+cmp Key,1
+jz Move_up
+cmp Key,2
+jz Move_Right
+cmp Key,3
+jz Move_Down
+cmp Key,4
+jz Move_Left
+jmp Out_of_Range
+
+
+
+Move_up:
+add PY2,1
+call TranslatePosition,PX1,PX2,PY1,PY2
+cmp PY2,0
+jz next
+jmp check_Validation
+next:
+sub ebx,1
+jmp check_Validation
+
+
+Move_Right:
+add px2,1
+call TranslatePosition,PX1,PX2,PY1,PY2
+cmp PX2,0
+jz next1
+jmp check_Validation
+next1:
+inc eax
+jmp check_Validation
+
+
+Move_Down:
+add PY2,1
+call TranslatePosition,PX1,PX2,PY1,PY2
+cmp PY2,0
+jz next2
+jmp check_Validation
+next2:
+add ebx,1
+jmp check_Validation
+
+
+
+Move_Left:
+add px2,1
+call TranslatePosition,PX1,PX2,PY1,PY2
+cmp PX2,0
+jz next3
+jmp check_Validation1
+next3:
+inc eax
+jmp check_Validation
+
+
+check_Validation:
+call Validation,eax,ebx
+
 
 MovePacMan ENDP
 ;------------Checkers-------------------------
