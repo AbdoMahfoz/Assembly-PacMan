@@ -1,7 +1,7 @@
 include irvine32.inc
 .data
-TmpX DWORD ?
-TmpY DWORD ?
+FRCX DWORD ?
+FRCY DWORD ?
 valid DWORD ?
 Key DWORD ?
 LastKey DWORD 0
@@ -144,21 +144,25 @@ InitializeEnemyData PROC pEnemyNumber:DWORD, pEX1:DWORD, pEX2:DWORD, pEY1:DWORD,
 InitializeEnemyData ENDP
 ;-------------------------------Helper-------
 TranslatePosition PROC X1:DWORD, X2:DWORD, Y1:DWORD, Y2:DWORD
-	mov eax,X2
-	cmp eax,5
+	mov eax,X1
+    mov esi,X2
+	mov FRCX,0
+	cmp esi,5
 	jae Round_x
 Continue:
-	mov ebx,Y2
-	cmp ebx,5
+	mov ebx,Y1
+    mov edx,Y2
+	mov FRCY,0
+	cmp edx,5
 	jae Round_Y
 	jmp End_Function
 Round_X:
 	inc eax
-	mov X2,0
+	mov FRCX,1
 	jmp Continue
 Round_Y:
-	inc ebx
-	mov Y2,0
+	inc edx
+	mov FRCY,1
 	End_Function:
 	ret
 TranslatePosition ENDP
@@ -185,6 +189,7 @@ next4:
 	mul ebx
 	mov ebx,offset Grid
 	add ebx,eax
+	add ebx,Y1
 	mov eax,[ebx]
 	cmp eax,Wall_Number
 	jz Not_Valid
@@ -206,6 +211,21 @@ GenerateRandomNumber PROC
 GenerateRandomNumber ENDP
 ;------------Pacman-Translations--------------
 MovePacMan PROC
+	mov edx,LastKey
+	cmp edx,Key
+	jz check
+	jmp Begin
+check:
+	mov edx,PX2
+	cmp edx,0
+	jz check1
+	jmp Begin
+check1:
+	mov edx,PY2
+	cmp edx,0
+	jz End_Function
+	jmp Begin
+Begin:
 	push PX1
 	push PX2
 	push PY1
@@ -224,42 +244,72 @@ MovePacMan PROC
 Move_up:
 	add PY2,1
 	invoke TranslatePosition,PX1,PX2,PY1,PY2
-	cmp PY2,0
+	cmp FRCY,1
 	jz next
 	jmp check_Validation
 next:
 	sub ebx,1
+	mov PY1,ebx
+	mov PY2,0
 	jmp check_Validation
 
 Move_Right:
 	add px2,1
 	Invoke TranslatePosition,PX1,PX2,PY1,PY2
-	cmp PX2,0
+	cmp FRCX,1
 	jz next1
 	jmp check_Validation
 next1:
 	inc eax
+	mov PX1,eax
+	mov PX2,0
 	jmp check_Validation
 Move_Down:
 	add PY2,1
 	Invoke TranslatePosition,PX1,PX2,PY1,PY2
-	cmp PY2,0
+	cmp FRCY,1
 	jz next2
 	jmp check_Validation
 next2:
 	add ebx,1
+	mov PY1,ebx
+	mov PY2,0
 	jmp check_Validation
 Move_Left:
 	add px2,1
 	Invoke TranslatePosition,PX1,PX2,PY1,PY2
-	cmp PX2,0
+	cmp FRCX,1
 	jz next3
 	jmp check_Validation1
 next3:
-	inc eax
+	dec eax
+	mov PX1,eax
+	mov PX2,0
 	jmp check_Validation
 check_Validation:
 	INVOKE Validation,eax,ebx
+	mov edx,valid
+	cmp valid,1
+	jz Finsh
+	jmp Out_Of_Range
+Out_Of_Range:
+	pop EY2
+	pop EY1
+	pop EX2
+	pop EX1
+	jmp End_Function
+Finsh:
+	pop edx
+	pop edx
+	pop edx
+	pop edx
+	mov esi,PTX
+	mov [esi],eax
+	mov esi,PTY
+	mov [esi],ebx
+	jmp End_Function
+End_Function:
+	ret
 
 MovePacMan ENDP
 ;------------Checkers-------------------------
@@ -273,12 +323,28 @@ RET
 CheckDeath ENDP
 ;-------------------------AI------------------
 AIMegaController PROC
-
+invoke AIController ,E1X1 ,E1X2,E1Y1 ,E1Y2 ,E1TX ,E1TY
+invoke AIController ,E2X1 ,E2X2,E1Y1 ,E2Y2 ,E2TX ,E2TY
+invoke AIController ,E3X1 ,E3X2,E3Y1 ,E3Y2 ,E3TX ,E3TY
+invoke AIController ,E4X1 ,E4X2,E4Y1 ,E4Y2 ,E4TX ,E4TY
 AIMegaController ENDP
 
 AIController PROC EX1:DWORD, EX2:DWORD, EY1:DWORD, EY2:DWORD, ETX: DWORD, ETY: DWORD
 	Start:
 	Invoke TranslatePosition EX1,EX2,EY1,EY2
+	mov edx,FRCX
+	cmp edx,1
+	jz Next
+Continue:
+	mov edx,FRCY
+	cmp edx,1
+	jz Next2
+Next:
+	mov EX2,0
+	jmp Continue
+Next2:
+	mov EY2,0
+
 	call GenerateRandomNumber	
 	cmp RandomNumber , 0
 	Je MoveDown
@@ -312,16 +378,10 @@ AIController PROC EX1:DWORD, EX2:DWORD, EY1:DWORD, EY2:DWORD, ETX: DWORD, ETY: D
 	pop eax
 	mov EX1,eax
 	mov EY1,ebx
-	push eax
-	mov edx , OFFset Grid 
-	mov esi , sWidth
-	mul esi 
-    add edx,eax
-	mov ETX , edx
-	mov edx , OFFset Grid
-	add edx, ebx
-	mov ETY , edx 
-	pop eax 
+	mov edx,ETX
+	mov [edx],eax
+	mov edx,ETY
+	mov [edx],ebx 
 	ret
 AIController ENDP
 ;----------------------------------------------
