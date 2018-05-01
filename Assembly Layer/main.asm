@@ -38,6 +38,7 @@ E3TX DWORD ?
 E3TY DWORD ?
 E4TX DWORD ?
 E4TY DWORD ?
+RandomNumber Dword ?
 Empty_Number = 0
 Wall_Number = 1
 Food_Number = 2
@@ -146,6 +147,13 @@ TranslatePosition ENDP
 ValidatePosition PROC X1:DWORD, X2:DWORD, Y1:DWORD, Y2:DWORD
 	
 ValidatePosition ENDP
+GenerateRandomNumber PROC Range:Dword
+	call Randomize ; Generates the Seed 
+	mov eax, Range ; sets the range of the random numbers
+	call RandomRange 
+	inc eax
+	mov RandomNumber , eax ; moves the random number to the Random Number Variable  
+GenerateRandomNumber ENDP
 ;------------Pacman-Translations--------------
 MovePacMan PROC
 
