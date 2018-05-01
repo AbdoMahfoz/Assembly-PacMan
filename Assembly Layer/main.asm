@@ -388,8 +388,23 @@ CheckDeath ENDP
 
 MegaCheckDeath PROC
 invoke CheckDeath ,PX1,PX2,PY1,PY2,E1X1,E1X2,E1Y1,E1Y2
+mov edx,State
+cmp edx,2
+JNE L1
+ret
+L1:
 invoke CheckDeath ,PX1,PX2,PY1,PY2,E2X1,E2X2,E2Y1,E2Y2
+mov edx,State
+cmp edx,2
+JNE L2
+ret
+L2:
 invoke CheckDeath ,PX1,PX2,PY1,PY2,E3X1,E3X2,E3Y1,E3Y2
+mov edx,State
+cmp edx,2
+JNE L3
+ret
+L3:
 invoke CheckDeath ,PX1,PX2,PY1,PY2,E4X1,E4X2,E4Y1,E4Y2
 MegaCheckDeath ENDP
 ;-------------------------AI------------------
