@@ -190,15 +190,19 @@ Round_Y:
 TranslatePosition ENDP
 
 ValidatePosition PROC X1:DWORD ,Y1:DWORD
-	cmp X1,sWidth
+	Push eax
+	mov eax,X1
+	cmp eax,sWidth
 	jne Next
 	jmp Not_Valid
 Next:
-	cmp X1,0
+	mov edi,X1
+	cmp edi,0
 	jae next2
 	jmp Not_Valid
 next2:
-	cmp Y1,sHeight
+	mov edi,Y1
+	cmp edi,sHeight
 	jne next3
 	jmp Not_Valid
 next3:
@@ -302,23 +306,27 @@ Move_Left:
 	Invoke TranslatePosition,PX1,PX2,PY1,PY2
 	cmp FRCX,1
 	jz next3
-	jmp check_Validation1
+	jmp check_Validation
 next3:
 	dec eax
 	mov PX1,eax
 	mov PX2,0
 	jmp check_Validation
 check_Validation:
-	INVOKE Validation,eax,ebx
+	INVOKE ValidatePosition,eax,ebx
 	mov edx,valid
 	cmp valid,1
 	jz Finsh
 	jmp Out_Of_Range
 Out_Of_Range:
-	pop EY2
-	pop EY1
-	pop EX2
-	pop EX1
+	pop Esi
+	mov PY2,esi
+	pop Esi
+	mov PY1,esi
+	pop Esi
+	mov PX2,esi
+	pop Esi
+	mov PX1,esi
 	jmp End_Function
 Finsh:
 	pop edx
@@ -361,24 +369,24 @@ End_Function:
 ret
 CheckFood ENDP
 
-CheckDeath PROC PX1:DWORD,PX2:DWORD,PY1:DWORD,PY2:DWORD,EX1:DWORD,EX2:DWORD,EY1:DWORD,EY2:DWORD
-mov eax,PX1
-CMP eax,EX1
+CheckDeath PROC PPX1:DWORD,PPX2:DWORD,PPY1:DWORD,PPY2:DWORD,EEX1:DWORD,EEX2:DWORD,EEY1:DWORD,EEY2:DWORD
+mov eax,PPX1
+CMP eax,EEX1
 JZ L1
 RET
 L1:
-mov eax,PX2
-CMP eax,EX2
+mov eax,PPX2
+CMP eax,EEX2
 JZ L2
 RET
 L2:
-mov eax,PY1
-CMP eax,EY1
+mov eax,PPY1
+CMP eax,EEY1
 JZ L3
 RET
 L3:
-mov eax,PY2
-CMP eax,EY2
+mov eax,PPY2
+CMP eax,EEY2
 JZ L4
 RET
 L4:
@@ -408,13 +416,6 @@ L3:
 invoke CheckDeath ,PX1,PX2,PY1,PY2,E4X1,E4X2,E4Y1,E4Y2
 MegaCheckDeath ENDP
 ;-------------------------AI------------------
-AIMegaController PROC
-invoke AIController ,E1X1 ,E1X2,E1Y1 ,E1Y2 ,E1TX ,E1TY
-invoke AIController ,E2X1 ,E2X2,E2Y1 ,E2Y2 ,E2TX ,E2TY
-invoke AIController ,E3X1 ,E3X2,E3Y1 ,E3Y2 ,E3TX ,E3TY
-invoke AIController ,E4X1 ,E4X2,E4Y1 ,E4Y2 ,E4TX ,E4TY
-AIMegaController ENDP
-
 AIController PROC EX1:DWORD, EX2:DWORD, EY1:DWORD, EY2:DWORD, ETX: DWORD, ETY: DWORD
 	Start:
 	Invoke TranslatePosition ,EX1,EX2,EY1,EY2
@@ -446,16 +447,16 @@ Next2:
 	MoveUp: 
 		Dec ebx
 		jmp Cont
-	MoveRight
+	MoveRight:
 		inc eax
 		jmp Cont
-	MoveLeft
+	MoveLeft:
 		dec eax
 		jmp Cont
 	Cont : 
 	push eax
 	push ebx
-	invoke ValidatePosition eax, ebx 
+	invoke ValidatePosition ,eax, ebx 
 	cmp valid,1
 	je correct 
 	jmp Start
@@ -470,6 +471,14 @@ Next2:
 	mov [edx],ebx 
 	ret
 AIController ENDP
+
+AIMegaController PROC
+invoke AIController ,E1X1 ,E1X2,E1Y1 ,E1Y2 ,E1TX ,E1TY
+invoke AIController ,E2X1 ,E2X2,E2Y1 ,E2Y2 ,E2TX ,E2TY
+invoke AIController ,E3X1 ,E3X2,E3Y1 ,E3Y2 ,E3TX ,E3TY
+invoke AIController ,E4X1 ,E4X2,E4Y1 ,E4Y2 ,E4TX ,E4TY
+AIMegaController ENDP
+
 ;----------------------------------------------
 ;----------------------------------------------
 DebugFunction PROC param:DWORD
