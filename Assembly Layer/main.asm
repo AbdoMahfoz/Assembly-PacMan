@@ -17,6 +17,7 @@ PY2 DWORD ?
 DPX DWORD ?
 DPY DWORD ?
 E1X1 DWORD ?
+
 E1X2 DWORD ?
 E1Y1 DWORD ?
 E1Y2 DWORD ?
@@ -144,6 +145,10 @@ InitializeEnemyData PROC pEnemyNumber:DWORD, pEX1:DWORD, pEX2:DWORD, pEY1:DWORD,
 	ret
 InitializeEnemyData ENDP
 
+
+;This Function scan the whole grid to count the Food_Number on the grid
+;At First it is intialized by -1 at .data
+;then it is called at PacMan_Movements Function.
 InitializeFood_Number PROC
 mov edx ,Food_Numbers
 cmp edx,-1
@@ -165,6 +170,9 @@ End_Function:
 ret 
 InitializeFood_Number ENDp
 ;-------------------------------Helper-------
+
+;This Function rounds 2 numbers each one of them consists of 2 parts real & fraction.
+;Returns these two numbers in the EAX,EBX respectively.
 TranslatePosition PROC X1:DWORD, X2:DWORD, Y1:DWORD, Y2:DWORD
 	mov eax,X1
     mov esi,X2
@@ -189,6 +197,8 @@ Round_Y:
 	ret
 TranslatePosition ENDP
 
+;This Function Check the validation of the index on the Grid.
+;Returns Bool variable called Valid 1 ---> is valid, 0 ----> not valid.
 ValidatePosition PROC X1:DWORD ,Y1:DWORD
 	Push eax
 	mov eax,X1
@@ -226,6 +236,10 @@ Not_Valid:
 End_Function:
 	ret 
 ValidatePosition ENDP
+
+
+;Generate Random number from range 0-3.
+;Returns the generated number in the Data member called RandomNumber.
 GenerateRandomNumber PROC 
 	push eax ;#1saves eax 
 	call Randomize ;#5Generates the Seed 
@@ -235,7 +249,92 @@ GenerateRandomNumber PROC
 	pop eax ;#1resotors eax
 	ret
 GenerateRandomNumber ENDP
+;------------Checkers-------------------------
+
+;Checks if the current index on the grid has Food or not.
+;If PacMan ate all the Food on the Grid the State is changed to winner.
+CheckFood PROC X1:DWORD,Y1:DWORD
+mov eax,X1
+mov ebx,sWidth
+mul ebx
+add eax,Y1
+mov edx,offset Grid 
+add edx,eax
+mov eax,[edx]
+cmp eax,Food_Number
+jz DECremnt
+jmp End_Function
+DECremnt:
+dec Food_Numbers
+mov eax,Empty_Number
+mov ebx,edx
+mov [ebx],eax
+mov edx,Food_Numbers
+cmp edx,0
+jz Winner
+jmp End_Function
+Winner:
+mov State,1
+End_Function:
+ret
+CheckFood ENDP
+
+
+;Checks the enemy move with the PacMan Move if they are equal the State is Changed to Loser ---> 2.
+CheckDeath PROC PPX1:DWORD,PPX2:DWORD,PPY1:DWORD,PPY2:DWORD,EEX1:DWORD,EEX2:DWORD,EEY1:DWORD,EEY2:DWORD
+mov eax,PPX1
+CMP eax,EEX1
+JZ L1
+RET
+L1:
+mov eax,PPX2
+CMP eax,EEX2
+JZ L2
+RET
+L2:
+mov eax,PPY1
+CMP eax,EEY1
+JZ L3
+RET
+L3:
+mov eax,PPY2
+CMP eax,EEY2
+JZ L4
+RET
+L4:
+mov State,2
+RET
+CheckDeath ENDP
+
+;Calls the CheckDeath function for all Enemies.
+MegaCheckDeath PROC
+invoke CheckDeath ,PX1,PX2,PY1,PY2,E1X1,E1X2,E1Y1,E1Y2
+mov edx,State
+cmp edx,2
+JNE L1
+ret
+L1:
+invoke CheckDeath ,PX1,PX2,PY1,PY2,E2X1,E2X2,E2Y1,E2Y2
+mov edx,State
+cmp edx,2
+JNE L2
+ret
+L2:
+invoke CheckDeath ,PX1,PX2,PY1,PY2,E3X1,E3X2,E3Y1,E3Y2
+mov edx,State
+cmp edx,2
+JNE L3
+ret
+L3:
+invoke CheckDeath ,PX1,PX2,PY1,PY2,E4X1,E4X2,E4Y1,E4Y2
+MegaCheckDeath ENDP
 ;------------Pacman-Translations--------------
+
+;Moves PacMan in the 4 Directions.
+;UP ---> 1.
+;Right ---> 2.
+;Down ----> 3.
+;Left ----> 4.
 MovePacMan PROC
 	mov edx,LastKey
 	cmp edx,Key
@@ -256,7 +355,8 @@ Begin:
 	push PX2
 	push PY1
 	push PY2
-
+	mov edx,Key
+	mov LastKey,edx
 	cmp Key,1
 	jz Move_up
 	cmp Key,2
@@ -337,85 +437,16 @@ Finsh:
 	mov [esi],eax
 	mov esi,PTY
 	mov [esi],ebx
+	invoke CheckFood,PX1,PY1
+	call MegaCheckDeath
 	jmp End_Function
 End_Function:
 	ret
 
 MovePacMan ENDP
-;------------Checkers-------------------------
-CheckFood PROC X1:DWORD,Y1:DWORD
-mov eax,X1
-mov ebx,sWidth
-mul ebx
-add eax,Y1
-mov edx,offset Grid 
-add edx,eax
-mov eax,[edx]
-cmp eax,Food_Number
-jz DECremnt
-jmp End_Function
-DECremnt:
-dec Food_Numbers
-mov eax,Empty_Number
-mov ebx,edx
-mov [ebx],eax
-mov edx,Food_Numbers
-cmp edx,0
-jz Winner
-jmp End_Function
-Winner:
-mov State,1
-End_Function:
-ret
-CheckFood ENDP
-
-CheckDeath PROC PPX1:DWORD,PPX2:DWORD,PPY1:DWORD,PPY2:DWORD,EEX1:DWORD,EEX2:DWORD,EEY1:DWORD,EEY2:DWORD
-mov eax,PPX1
-CMP eax,EEX1
-JZ L1
-RET
-L1:
-mov eax,PPX2
-CMP eax,EEX2
-JZ L2
-RET
-L2:
-mov eax,PPY1
-CMP eax,EEY1
-JZ L3
-RET
-L3:
-mov eax,PPY2
-CMP eax,EEY2
-JZ L4
-RET
-L4:
-mov State,2
-RET
-CheckDeath ENDP
-
-MegaCheckDeath PROC
-invoke CheckDeath ,PX1,PX2,PY1,PY2,E1X1,E1X2,E1Y1,E1Y2
-mov edx,State
-cmp edx,2
-JNE L1
-ret
-L1:
-invoke CheckDeath ,PX1,PX2,PY1,PY2,E2X1,E2X2,E2Y1,E2Y2
-mov edx,State
-cmp edx,2
-JNE L2
-ret
-L2:
-invoke CheckDeath ,PX1,PX2,PY1,PY2,E3X1,E3X2,E3Y1,E3Y2
-mov edx,State
-cmp edx,2
-JNE L3
-ret
-L3:
-invoke CheckDeath ,PX1,PX2,PY1,PY2,E4X1,E4X2,E4Y1,E4Y2
-MegaCheckDeath ENDP
 ;-------------------------AI------------------
+
+;Calls GenerateRandomNumber Function and checks for validation then moves the Enemies on the new index on the Grid.
 AIController PROC EX1:DWORD, EX2:DWORD, EY1:DWORD, EY2:DWORD, ETX: DWORD, ETY: DWORD
 	Start:
 	Invoke TranslatePosition ,EX1,EX2,EY1,EY2
@@ -472,6 +503,7 @@ Next2:
 	ret
 AIController ENDP
 
+;Calls the AIController Function for all enemies.
 AIMegaController PROC
 invoke AIController ,E1X1 ,E1X2,E1Y1 ,E1Y2 ,E1TX ,E1TY
 invoke AIController ,E2X1 ,E2X2,E2Y1 ,E2Y2 ,E2TX ,E2TY
