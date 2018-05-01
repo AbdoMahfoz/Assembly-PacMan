@@ -1,5 +1,7 @@
 include irvine32.inc
 .data
+TmpX DWORD ?
+TmpY DWORD ?
 valid DWORD ?
 Key DWORD ?
 LastKey DWORD 0
@@ -143,12 +145,12 @@ InitializeEnemyData ENDP
 ;-------------------------------Helper-------
 TranslatePosition PROC X1:DWORD, X2:DWORD, Y1:DWORD, Y2:DWORD
 	mov eax,X2
-	cmp eax,0
-	jz Round_x
+	cmp eax,5
+	jae Round_x
 Continue:
 	mov ebx,Y2
-	cmp ebx,0
-	jz Round_Y
+	cmp ebx,5
+	jae Round_Y
 	jmp End_Function
 Round_X:
 	inc eax
@@ -194,12 +196,12 @@ End_Function:
 	ret 
 ValidatePosition ENDP
 GenerateRandomNumber PROC 
-	push eax ;saves eax 
-	call Randomize ;Generates the Seed 
-	mov eax, 4 ;sets the range of the random numbers
+	push eax ;#1saves eax 
+	call Randomize ;#5Generates the Seed 
+	mov eax, 4 ;#5sets the range of the random numbers
 	call RandomRange 
-	mov RandomNumber , eax ;moves the random number to the Random Number Variable  .
-	pop eax ;resotors eax
+	mov RandomNumber , eax ;#?moves the random number to the Random Number Variable  .
+	pop eax ;#1resotors eax
 	ret
 GenerateRandomNumber ENDP
 ;------------Pacman-Translations--------------
@@ -267,18 +269,17 @@ CheckFood ENDP
 
 CheckDeath PROC
 
+RET
 CheckDeath ENDP
 ;-------------------------AI------------------
 AIMegaController PROC
 
 AIMegaController ENDP
 
-AIController PROC EX1:DWORD, EX2:DWORD, EY1:DWORD, EY2:DWORD, ETX: DWORD, ETY, DWORD
-;ValidatePosition
-;TranslatePosition
-;RandomNumber
+AIController PROC EX1:DWORD, EX2:DWORD, EY1:DWORD, EY2:DWORD, ETX: DWORD, ETY: DWORD
 	Start:
 	Invoke TranslatePosition EX1,EX2,EY1,EY2
+	call GenerateRandomNumber	
 	cmp RandomNumber , 0
 	Je MoveDown
 	cmp RandomNumber , 1
@@ -308,20 +309,20 @@ AIController PROC EX1:DWORD, EX2:DWORD, EY1:DWORD, EY2:DWORD, ETX: DWORD, ETY, D
 	jmp Start
 	correct:
 	pop ebx
-	pop eax 
+	pop eax
+	mov EX1,eax
+	mov EY1,ebx
 	push eax
 	mov edx , OFFset Grid 
 	mov esi , sWidth
 	mul esi 
-	mov ETX , eax 
+    add edx,eax
+	mov ETX , edx
 	mov edx , OFFset Grid
 	add edx, ebx
 	mov ETY , edx 
 	pop eax 
 	ret
-call GenerateRandomNumber
-
-
 AIController ENDP
 ;----------------------------------------------
 ;----------------------------------------------
