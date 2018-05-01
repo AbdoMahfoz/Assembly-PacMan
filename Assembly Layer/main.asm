@@ -149,11 +149,11 @@ ValidatePosition PROC X1:DWORD, X2:DWORD, Y1:DWORD, Y2:DWORD
 ValidatePosition ENDP
 GenerateRandomNumber PROC Range:Dword
 	push eax 
-	call Randomize ; Generates the Seed 
-	mov eax, Range ; sets the range of the random numbers
+	call Randomize ;#5 Generates the Seed 
+	mov eax, Range ;#5 sets the range of the random numbers
 	call RandomRange 
 	inc eax
-	mov RandomNumber , eax ; moves the random number to the Random Number Variable  
+	mov RandomNumber , eax ;#? moves the random number to the Random Number Variable  
 	pop eax
 	ret
 GenerateRandomNumber ENDP
@@ -176,6 +176,7 @@ AIMegaController ENDP
 
 AIController PROC EX1:DWORD, EX2:DWORD, EY1:DWORD, EY2:DWORD, ETX: DWORD, ETY, DWORD
 call GenerateRandomNumber
+
 AIController ENDP
 ;----------------------------------------------
 ;----------------------------------------------
