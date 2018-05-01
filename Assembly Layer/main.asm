@@ -5,7 +5,8 @@ FRCY DWORD ?
 valid DWORD ?
 Key DWORD ?
 LastKey DWORD 0
-State DWORD ?
+State DWORD 0
+Food_Numbers DWORD -1
 Grid DWORD ?
 sWidth DWORD ?
 sHeight DWORD ?
@@ -142,6 +143,27 @@ InitializeEnemyData PROC pEnemyNumber:DWORD, pEX1:DWORD, pEX2:DWORD, pEY1:DWORD,
 	mov E4TY, EAX
 	ret
 InitializeEnemyData ENDP
+
+InitializeFood_Number PROC
+mov edx ,Food_Numbers
+cmp edx,-1
+jnz End_Function
+mov edx,offset Grid
+mov eax,sWidth
+mov ebx ,sHeight
+mul ebx
+mov ecx,eax
+l1:
+mov ebx,[edx]
+cmp ebx,Food_Number
+jnz continueloop 
+inc Food_Numbers
+continueloop:
+add edx,type Grid
+loop l1
+End_Function:
+ret 
+InitializeFood_Number ENDp
 ;-------------------------------Helper-------
 TranslatePosition PROC X1:DWORD, X2:DWORD, Y1:DWORD, Y2:DWORD
 	mov eax,X1
@@ -218,12 +240,12 @@ MovePacMan PROC
 check:
 	mov edx,PX2
 	cmp edx,0
-	jz check1
+	jnz check1
 	jmp Begin
 check1:
 	mov edx,PY2
 	cmp edx,0
-	jz End_Function
+	jnz End_Function
 	jmp Begin
 Begin:
 	push PX1
@@ -313,25 +335,74 @@ End_Function:
 
 MovePacMan ENDP
 ;------------Checkers-------------------------
-CheckFood PROC
-
+CheckFood PROC X1:DWORD,Y1:DWORD
+mov eax,X1
+mov ebx,sWidth
+mul ebx
+add eax,Y1
+mov edx,offset Grid 
+add edx,eax
+mov eax,[edx]
+cmp eax,Food_Number
+jz DECremnt
+jmp End_Function
+DECremnt:
+dec Food_Numbers
+mov eax,Empty_Number
+mov ebx,edx
+mov [ebx],eax
+mov edx,Food_Numbers
+cmp edx,0
+jz Winner
+jmp End_Function
+Winner:
+mov State,1
+End_Function:
+ret
 CheckFood ENDP
 
-CheckDeath PROC
-
+CheckDeath PROC PX1:DWORD,PX2:DWORD,PY1:DWORD,PY2:DWORD,EX1:DWORD,EX2:DWORD,EY1:DWORD,EY2:DWORD
+mov eax,PX1
+CMP eax,EX1
+JZ L1
+RET
+L1:
+mov eax,PX2
+CMP eax,EX2
+JZ L2
+RET
+L2:
+mov eax,PY1
+CMP eax,EY1
+JZ L3
+RET
+L3:
+mov eax,PY2
+CMP eax,EY2
+JZ L4
+RET
+L4:
+mov State,2
 RET
 CheckDeath ENDP
+
+MegaCheckDeath PROC
+invoke CheckDeath ,PX1,PX2,PY1,PY2,E1X1,E1X2,E1Y1,E1Y2
+invoke CheckDeath ,PX1,PX2,PY1,PY2,E2X1,E2X2,E2Y1,E2Y2
+invoke CheckDeath ,PX1,PX2,PY1,PY2,E3X1,E3X2,E3Y1,E3Y2
+invoke CheckDeath ,PX1,PX2,PY1,PY2,E4X1,E4X2,E4Y1,E4Y2
+MegaCheckDeath ENDP
 ;-------------------------AI------------------
 AIMegaController PROC
 invoke AIController ,E1X1 ,E1X2,E1Y1 ,E1Y2 ,E1TX ,E1TY
-invoke AIController ,E2X1 ,E2X2,E1Y1 ,E2Y2 ,E2TX ,E2TY
+invoke AIController ,E2X1 ,E2X2,E2Y1 ,E2Y2 ,E2TX ,E2TY
 invoke AIController ,E3X1 ,E3X2,E3Y1 ,E3Y2 ,E3TX ,E3TY
 invoke AIController ,E4X1 ,E4X2,E4Y1 ,E4Y2 ,E4TX ,E4TY
 AIMegaController ENDP
 
 AIController PROC EX1:DWORD, EX2:DWORD, EY1:DWORD, EY2:DWORD, ETX: DWORD, ETY: DWORD
 	Start:
-	Invoke TranslatePosition EX1,EX2,EY1,EY2
+	Invoke TranslatePosition ,EX1,EX2,EY1,EY2
 	mov edx,FRCX
 	cmp edx,1
 	jz Next
