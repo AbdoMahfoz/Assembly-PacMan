@@ -17,7 +17,6 @@ PY2 DWORD ?
 DPX DWORD ?
 DPY DWORD ?
 E1X1 DWORD ?
-
 E1X2 DWORD ?
 E1Y1 DWORD ?
 E1Y2 DWORD ?
@@ -254,6 +253,7 @@ GenerateRandomNumber ENDP
 ;Checks if the current index on the grid has Food or not.
 ;If PacMan ate all the Food on the Grid the State is changed to winner.
 CheckFood PROC X1:DWORD,Y1:DWORD
+call InitializeFood_Number	
 mov eax,X1
 mov ebx,sWidth
 mul ebx
@@ -274,11 +274,10 @@ cmp edx,0
 jz Winner
 jmp End_Function
 Winner:
-mov State,1
+mov [State],1
 End_Function:
 ret
 CheckFood ENDP
-
 
 ;Checks the enemy move with the PacMan Move if they are equal the State is Changed to Loser ---> 2.
 CheckDeath PROC PPX1:DWORD,PPX2:DWORD,PPY1:DWORD,PPY2:DWORD,EEX1:DWORD,EEX2:DWORD,EEY1:DWORD,EEY2:DWORD
@@ -302,31 +301,32 @@ CMP eax,EEY2
 JZ L4
 RET
 L4:
-mov State,2
+mov [State],2
 RET
 CheckDeath ENDP
 
 ;Calls the CheckDeath function for all Enemies.
 MegaCheckDeath PROC
 invoke CheckDeath ,PX1,PX2,PY1,PY2,E1X1,E1X2,E1Y1,E1Y2
-mov edx,State
+mov edx,[State]
 cmp edx,2
 JNE L1
 ret
 L1:
 invoke CheckDeath ,PX1,PX2,PY1,PY2,E2X1,E2X2,E2Y1,E2Y2
-mov edx,State
+mov edx,[State]
 cmp edx,2
 JNE L2
 ret
 L2:
 invoke CheckDeath ,PX1,PX2,PY1,PY2,E3X1,E3X2,E3Y1,E3Y2
-mov edx,State
+mov edx,[State]
 cmp edx,2
 JNE L3
 ret
 L3:
 invoke CheckDeath ,PX1,PX2,PY1,PY2,E4X1,E4X2,E4Y1,E4Y2
+ret
 MegaCheckDeath ENDP
 ;------------Pacman-Translations--------------
 
@@ -343,13 +343,10 @@ MovePacMan PROC
 check:
 	mov edx,PX2
 	cmp edx,0
-	jnz check1
-	jmp Begin
-check1:
+	jnz End_Function
 	mov edx,PY2
 	cmp edx,0
 	jnz End_Function
-	jmp Begin
 Begin:
 	push PX1
 	push PX2
