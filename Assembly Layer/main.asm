@@ -470,19 +470,19 @@ Begin:
 	Je MoveUp
 	cmp RandomNumber , 3
 	Je MoveLeft
-	MoveDown: 
-		Inc ebx
-		jmp Cont
-	MoveUp: 
-		Dec ebx
-		jmp Cont
-	MoveRight:
-		inc eax
-		jmp Cont
-	MoveLeft:
-		dec eax
-		jmp Cont
-	Cont : 
+MoveDown: 
+	Inc ebx
+	jmp Cont
+MoveUp: 
+	Dec ebx
+	jmp Cont
+MoveRight:
+	inc eax
+	jmp Cont
+MoveLeft:
+	dec eax
+	jmp Cont
+Cont: 
 	push eax
 	push ebx
 	invoke ValidatePosition ,eax, ebx 
@@ -507,17 +507,14 @@ invoke AIController ,E1X1 ,E1X2,E1Y1 ,E1Y2 ,E1TX ,E1TY
 invoke AIController ,E2X1 ,E2X2,E2Y1 ,E2Y2 ,E2TX ,E2TY
 invoke AIController ,E3X1 ,E3X2,E3Y1 ,E3Y2 ,E3TX ,E3TY
 invoke AIController ,E4X1 ,E4X2,E4Y1 ,E4Y2 ,E4TX ,E4TY
+ret
 AIMegaController ENDP
 
 ;----------------------------------------------
 ;----------------------------------------------
-DebugF PROC param:DWORD
-	ret
-DebugF ENDP
 
 DebugFunction PROC param:DWORD
 	mov eax, param
-	invoke DebugF, param
 	imul eax, 2
 	ret
 DebugFunction ENDP

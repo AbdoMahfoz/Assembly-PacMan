@@ -188,7 +188,7 @@ void UpdateFood()
 void LevelPlayer::Main()
 {
 	AssemblyLoader::InitializePlayerData(PX1, PX2, PY1, PY2, &PTX, &PTY);
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		AssemblyLoader::InitializeEnemyData(i + 1, EX1[i], EX2[i], EY1[i], EY2[i], &ETX[i], &ETY[i]);
 	}
