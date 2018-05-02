@@ -1,4 +1,6 @@
 #include "LevelPlayer.h"
+#include "Engine.h"
+#include "AssemblyLoader.h"
 #include <fstream>
 
 //.Data
@@ -14,10 +16,17 @@ VertexArray *BackLayer;
 //Enemies and Pacman
 RectangleShape Pacman, Ghost[4];
 
-void OnExit()
+void PlayerOnExit()
 {
 	delete[] Grid;
 	delete[] BackLayer;
+	engine->UnRegisterRoutine(LevelPlayer::Main);
+	engine->UnRegisterObject(0, BackLayer);
+	for (int i = 0; i < 4; i++)
+	{
+		engine->UnRegisterObject(2, &Ghost[i]);
+	}
+	engine->UnRegisterObject(1, &Pacman);
 }
 
 void LevelPlayer::LoadLevel(std::string FileName)
@@ -92,10 +101,42 @@ void LevelPlayer::LoadLevel(std::string FileName)
 		engine->RegisterObject(2, &Ghost[i]);
 	}
 	engine->RegisterObject(1, &Pacman);
-	engine->RegisterOnClose(OnExit);
+	engine->RegisterOnClose(PlayerOnExit);
+	engine->RegisterRoutine(LevelPlayer::Main);
+	AssemblyLoader::InitializeGridData(Grid, Width, Height);
+}
+
+int GetKeyNumber()
+{
+	if (Keyboard::isKeyPressed(Keyboard::Up))
+	{
+		return 1;
+	}
+	if (Keyboard::isKeyPressed(Keyboard::Right))
+	{
+		return 2;
+	}
+	if (Keyboard::isKeyPressed(Keyboard::Down))
+	{
+		return 3;
+	}
+	if (Keyboard::isKeyPressed(Keyboard::Left))
+	{
+		return 4;
+	}
+	return 0;
 }
 
 void LevelPlayer::Main()
 {
-
+	AssemblyLoader::InitializePlayerData(PX1, PX2, PY1, PY2, &PTX, &PTY);
+	for (int i = 0; i < 3; i++)
+	{
+		AssemblyLoader::InitializeEnemyData(i + 1, EX1[i], EX2[i], EY1[i], EY2[i], &ETX[i], &ETY[i]);
+	}
+	AssemblyLoader::InitializeStateData(GetKeyNumber(), &State);
+	AssemblyLoader::MovePacMan();
+	AssemblyLoader::CheckFood(PX1, PX2);
+	AssemblyLoader::CheckDeath();
+	AssemblyLoader::AIMegaController();
 }

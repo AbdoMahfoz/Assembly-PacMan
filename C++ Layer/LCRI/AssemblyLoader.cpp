@@ -8,10 +8,9 @@ _InitializePlayerData AssemblyLoader::InitializePlayerData = nullptr;
 _InitializeEnemyData AssemblyLoader::InitializeEnemyData = nullptr;
 _MovePacMan AssemblyLoader::MovePacMan = nullptr;
 _CheckFood AssemblyLoader::CheckFood = nullptr;
-_CheckDeath AssemblyLoader::CheckDeath = nullptr;
+_MegaCheckDeath AssemblyLoader::CheckDeath = nullptr;
 _AIMegaController AssemblyLoader::AIMegaController = nullptr;
 _DebugFunction AssemblyLoader::DebugFunction = nullptr;
-
 
 void AssemblyLoader::Load()
 {
@@ -29,7 +28,7 @@ void AssemblyLoader::Load()
 	assert(MovePacMan != nullptr);
 	CheckFood = (_CheckFood)GetProcAddress(instance, "CheckFood");
 	assert(CheckFood != nullptr);
-	CheckDeath = (_CheckDeath)GetProcAddress(instance, "CheckDeath");
+	CheckDeath = (_MegaCheckDeath)GetProcAddress(instance, "MegaCheckDeath");
 	assert(CheckDeath != nullptr);
 	AIMegaController = (_AIMegaController)GetProcAddress(instance, "AIMegaController");
 	assert(AIMegaController != nullptr);

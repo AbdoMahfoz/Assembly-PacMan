@@ -5,6 +5,6 @@ InitializePlayerData @3
 InitializeEnemyData @4
 MovePacMan @5
 CheckFood @6
-CheckDeath @7
+MegaCheckDeath @7
 AIMegaController @8
 DebugFunction @9

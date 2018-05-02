@@ -152,7 +152,7 @@ InitializeFood_Number PROC
 mov edx ,Food_Numbers
 cmp edx,-1
 jnz End_Function
-mov edx,offset Grid
+mov edx,Grid
 mov eax,sWidth
 mov ebx ,sHeight
 mul ebx
@@ -233,6 +233,7 @@ next4:
 Not_Valid:
 	mov valid,0
 End_Function:
+	pop eax
 	ret 
 ValidatePosition ENDP
 
@@ -348,10 +349,10 @@ check:
 	cmp edx,0
 	jnz End_Function
 Begin:
-	push PX1
-	push PX2
-	push PY1
-	push PY2
+	;push PX1
+	;push PX2
+	;push PY1
+	;push PY2
 	mov edx,Key
 	mov LastKey,edx
 	cmp Key,1
@@ -416,26 +417,26 @@ check_Validation:
 	jz Finsh
 	jmp Out_Of_Range
 Out_Of_Range:
-	pop Esi
-	mov PY2,esi
-	pop Esi
-	mov PY1,esi
-	pop Esi
-	mov PX2,esi
-	pop Esi
-	mov PX1,esi
+	;pop Esi
+	;mov PY2,esi
+	;pop Esi
+	;mov PY1,esi
+	;pop Esi
+	;mov PX2,esi
+	;pop Esi
+	;mov PX1,esi
 	jmp End_Function
 Finsh:
-	pop edx
-	pop edx
-	pop edx
-	pop edx
+	;pop edx
+	;pop edx
+	;pop edx
+	;pop edx
 	mov esi,PTX
 	mov [esi],eax
 	mov esi,PTY
 	mov [esi],ebx
-	invoke CheckFood,PX1,PY1
-	call MegaCheckDeath
+	;invoke CheckFood,PX1,PY1
+	;call MegaCheckDeath
 	jmp End_Function
 End_Function:
 	ret
