@@ -49,10 +49,15 @@ void LevelPlayer::LoadLevel(std::string FileName)
 		{
 			SuperRect.setPosition(Vector2f(j * RectWidth, i * RectHeight));
 			SuperRect.setSize(Vector2f(RectWidth, RectHeight));
-			Vector2f Position = SuperRect.getPosition();
 			int c;
 			in >> c;
-			Grid[i * Width + j] = (c <= 2) ? c : 0;
+			Grid[i * Width + j] = ((c <= 2) ? c : 0);
+			if (c == 2)
+			{
+				SuperRect.move(Vector2f(RectWidth / 4.0f, RectHeight / 4.0f));
+				SuperRect.setSize(Vector2f(RectWidth / 2.0f, RectHeight / 2.0f));
+			}
+			Vector2f Position = SuperRect.getPosition();
 			for (int k = 0; k < 4; k++)
 			{
 				(*BackLayer)[(i * Width * 4) + (j * 4) + k].position = SuperRect.getPoint(k) + Position;
@@ -93,6 +98,12 @@ void LevelPlayer::LoadLevel(std::string FileName)
 					break;
 				}
 			}
+			if (c == 2)
+			{
+				SuperRect.setOrigin(Vector2f(0, 0));
+				SuperRect.move(Vector2f(-RectWidth / 2.0f, -RectHeight / 2.0f));
+				SuperRect.setSize(Vector2f(RectWidth, RectHeight));
+			}
 		}
 	}
 	engine->RegisterObject(0, BackLayer);
@@ -108,23 +119,70 @@ void LevelPlayer::LoadLevel(std::string FileName)
 
 int GetKeyNumber()
 {
+	int ans = 0;
 	if (Keyboard::isKeyPressed(Keyboard::Up))
 	{
-		return 1;
+		ans = 1;
 	}
 	if (Keyboard::isKeyPressed(Keyboard::Right))
 	{
-		return 2;
+		if (ans != 0) return 0;
+		ans = 2;
 	}
 	if (Keyboard::isKeyPressed(Keyboard::Down))
 	{
-		return 3;
+		if (ans != 0) return 0;
+		ans = 3;
 	}
 	if (Keyboard::isKeyPressed(Keyboard::Left))
 	{
-		return 4;
+		if (ans != 0) return 0;
+		ans = 4;
 	}
-	return 0;
+	return ans;
+}
+
+void TranslatePosition(int& P1, int& P2, int PT)
+{
+	if (P1 == PT && P2 == 0)
+	{
+		return;
+	}
+	if (P1 >= PT)
+	{
+		P2--;
+	}
+	else
+	{
+		P2++;
+	}
+	if (P2 == 10)
+	{
+		P2 = 0;
+		P1++;
+	}
+	if (P2 == -1)
+	{
+		P2 = 9;
+		P1--;
+	}
+}
+
+void UpdateFood()
+{
+	for (int i = 0; i < Height; i++)
+	{
+		for (int j = 0; j < Width; j++)
+		{
+			if (Grid[i * Width + j] == 0)
+			{
+				for (int k = 0; k < 4; k++)
+				{
+					(*BackLayer)[(i * Width * 4) + (j * 4) + k].color = Color::Black;
+				}
+			}
+		}
+	}
 }
 
 void LevelPlayer::Main()
@@ -136,7 +194,15 @@ void LevelPlayer::Main()
 	}
 	AssemblyLoader::InitializeStateData(GetKeyNumber(), &State);
 	AssemblyLoader::MovePacMan();
-	AssemblyLoader::CheckFood(PX1, PX2);
-	AssemblyLoader::CheckDeath();
-	AssemblyLoader::AIMegaController();
+	AssemblyLoader::CheckFood(PX1, PX2, PY1, PY2);
+	//AssemblyLoader::CheckDeath();
+	//AssemblyLoader::AIMegaController();
+	if (State)
+	{
+		exit(0);
+	}
+	TranslatePosition(PX1, PX2, PTX);
+	TranslatePosition(PY1, PY2, PTY);
+	Pacman.setPosition(Vector2f((PX1 * RectWidth) + ((PX2 / 10.0f) * RectWidth), (PY1 * RectHeight) + ((PY2 / 10.0f) * RectHeight)));
+	UpdateFood();
 }

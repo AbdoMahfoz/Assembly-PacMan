@@ -68,7 +68,7 @@ void Engine::Render()
 		//Signaling to the Main thread that Rendering is about to begin
 		RenderStartedMutex.unlock();
 		//Clear the window
-		MainWindow->clear(Color::White);
+		MainWindow->clear(Color::Black);
 		//Main Rendering loop
 		//iterates throught all registered objects and draw them layer by layer
 		for (int i = 0; i < 7; i++)

@@ -152,20 +152,22 @@ InitializeFood_Number PROC
 mov edx ,Food_Numbers
 cmp edx,-1
 jnz End_Function
-mov edx,Grid
+mov Food_Numbers, 0
+mov esi,Grid
 mov eax,sWidth
 mov ebx ,sHeight
 mul ebx
 mov ecx,eax
 l1:
-mov ebx,[edx]
+mov ebx,[esi]
 cmp ebx,Food_Number
 jnz continueloop 
 inc Food_Numbers
 continueloop:
-add edx,type Grid
+add esi,type Grid
 loop l1
 End_Function:
+mov ebx, Food_Numbers
 ret 
 InitializeFood_Number ENDp
 ;-------------------------------Helper-------
@@ -177,20 +179,20 @@ TranslatePosition PROC X1:DWORD, X2:DWORD, Y1:DWORD, Y2:DWORD
     mov esi,X2
 	mov FRCX,0
 	cmp esi,5
-	jae Round_x
+	jge Round_x
 Continue:
 	mov ebx,Y1
     mov edx,Y2
 	mov FRCY,0
 	cmp edx,5
-	jae Round_Y
+	jge Round_Y
 	jmp End_Function
 Round_X:
 	inc eax
 	mov FRCX,1
 	jmp Continue
 Round_Y:
-	inc edx
+	inc ebx
 	mov FRCY,1
 	End_Function:
 	ret
@@ -207,7 +209,7 @@ ValidatePosition PROC X1:DWORD ,Y1:DWORD
 Next:
 	mov edi,X1
 	cmp edi,0
-	jae next2
+	jge next2
 	jmp Not_Valid
 next2:
 	mov edi,Y1
@@ -216,15 +218,16 @@ next2:
 	jmp Not_Valid
 next3:
 	cmp Y1,0
-	jae next4
+	jge next4
 	jmp Not_Valid
 next4:
-	mov eax,X1
+	mov eax,Y1
 	mov ebx,sWidth
 	mul ebx
-	mov ebx,offset Grid
+	add eax,X1
+	imul eax, 4
+	mov ebx,Grid
 	add ebx,eax
-	add ebx,Y1
 	mov eax,[ebx]
 	cmp eax,Wall_Number
 	jz Not_Valid
@@ -253,29 +256,33 @@ GenerateRandomNumber ENDP
 
 ;Checks if the current index on the grid has Food or not.
 ;If PacMan ate all the Food on the Grid the State is changed to winner.
-CheckFood PROC X1:DWORD,Y1:DWORD
-call InitializeFood_Number	
-mov eax,X1
+CheckFood PROC X1:DWORD, X2:DWORD, Y1:DWORD, Y2:DWORD
+call InitializeFood_Number
+invoke TranslatePosition, X1, X2, Y1, Y2
+mov X1, eax
+mov Y1, ebx
+mov eax,Y1
 mov ebx,sWidth
 mul ebx
-add eax,Y1
-mov edx,offset Grid 
-add edx,eax
-mov eax,[edx]
+add eax,X1
+imul eax, 4
+mov ebx,Grid
+add ebx,eax
+mov eax,[ebx]
 cmp eax,Food_Number
 jz DECremnt
 jmp End_Function
 DECremnt:
 dec Food_Numbers
 mov eax,Empty_Number
-mov ebx,edx
 mov [ebx],eax
 mov edx,Food_Numbers
 cmp edx,0
 jz Winner
 jmp End_Function
 Winner:
-mov [State],1
+mov ESI, State
+mov DWORD PTR[ESI],1
 End_Function:
 ret
 CheckFood ENDP
@@ -309,19 +316,22 @@ CheckDeath ENDP
 ;Calls the CheckDeath function for all Enemies.
 MegaCheckDeath PROC
 invoke CheckDeath ,PX1,PX2,PY1,PY2,E1X1,E1X2,E1Y1,E1Y2
-mov edx,[State]
+mov ESI, State
+mov edx,[ESI]
 cmp edx,2
 JNE L1
 ret
 L1:
 invoke CheckDeath ,PX1,PX2,PY1,PY2,E2X1,E2X2,E2Y1,E2Y2
-mov edx,[State]
+mov ESI, State
+mov edx,[ESI]
 cmp edx,2
 JNE L2
 ret
 L2:
 invoke CheckDeath ,PX1,PX2,PY1,PY2,E3X1,E3X2,E3Y1,E3Y2
-mov edx,[State]
+mov ESI, State
+mov edx,[ESI]
 cmp edx,2
 JNE L3
 ret
@@ -349,10 +359,10 @@ check:
 	cmp edx,0
 	jnz End_Function
 Begin:
-	;push PX1
-	;push PX2
-	;push PY1
-	;push PY2
+	push PX1
+	push PX2
+	push PY1
+	push PY2
 	mov edx,Key
 	mov LastKey,edx
 	cmp Key,1
@@ -366,49 +376,36 @@ Begin:
 	jmp Out_of_Range
 
 Move_up:
-	add PY2,1
 	invoke TranslatePosition,PX1,PX2,PY1,PY2
-	cmp FRCY,1
-	jz next
+	sub EBX,1
+	mov ESI, PTX
+	mov EAX, [ESI]
+	mov PX1, EAX
+	mov PY1, EBX
 	jmp check_Validation
-next:
-	sub ebx,1
-	mov PY1,ebx
-	mov PY2,0
-	jmp check_Validation
-
 Move_Right:
-	add px2,1
 	Invoke TranslatePosition,PX1,PX2,PY1,PY2
-	cmp FRCX,1
-	jz next1
-	jmp check_Validation
-next1:
-	inc eax
-	mov PX1,eax
-	mov PX2,0
+	add EAX, 1
+	mov ESI, PTY
+	mov EBX, [ESI]
+	mov PY1, EBX
+	mov PX1, EAX
 	jmp check_Validation
 Move_Down:
-	add PY2,1
 	Invoke TranslatePosition,PX1,PX2,PY1,PY2
-	cmp FRCY,1
-	jz next2
-	jmp check_Validation
-next2:
-	add ebx,1
-	mov PY1,ebx
-	mov PY2,0
+	add EBX, 1
+	mov ESI, PTX
+	mov EAX, [ESI]
+	mov PX1, EAX
+	mov PY1, EBX
 	jmp check_Validation
 Move_Left:
-	add px2,1
 	Invoke TranslatePosition,PX1,PX2,PY1,PY2
-	cmp FRCX,1
-	jz next3
-	jmp check_Validation
-next3:
-	dec eax
-	mov PX1,eax
-	mov PX2,0
+	sub EAX,1
+	mov ESI, PTY
+	mov EBX, [ESI]
+	mov PY1, EBX
+	mov PX1, EAX
 	jmp check_Validation
 check_Validation:
 	INVOKE ValidatePosition,eax,ebx
@@ -417,20 +414,22 @@ check_Validation:
 	jz Finsh
 	jmp Out_Of_Range
 Out_Of_Range:
-	;pop Esi
-	;mov PY2,esi
-	;pop Esi
-	;mov PY1,esi
-	;pop Esi
-	;mov PX2,esi
-	;pop Esi
-	;mov PX1,esi
+	pop Esi
+	mov PY2,esi
+	pop Esi
+	mov PY1,esi
+	pop Esi
+	mov PX2,esi
+	pop Esi
+	mov PX1,esi
 	jmp End_Function
 Finsh:
-	;pop edx
-	;pop edx
-	;pop edx
-	;pop edx
+	pop edx
+	pop edx
+	pop edx
+	pop edx
+	mov eax, PX1
+	mov ebx, PY1
 	mov esi,PTX
 	mov [esi],eax
 	mov esi,PTY
@@ -455,12 +454,13 @@ Continue:
 	mov edx,FRCY
 	cmp edx,1
 	jz Next2
+	jmp Begin
 Next:
 	mov EX2,0
 	jmp Continue
 Next2:
 	mov EY2,0
-
+Begin:
 	call GenerateRandomNumber	
 	cmp RandomNumber , 0
 	Je MoveDown
@@ -486,12 +486,12 @@ Next2:
 	push eax
 	push ebx
 	invoke ValidatePosition ,eax, ebx 
+	pop ebx
+	pop eax
 	cmp valid,1
 	je correct 
 	jmp Start
 	correct:
-	pop ebx
-	pop eax
 	mov EX1,eax
 	mov EY1,ebx
 	mov edx,ETX
@@ -511,8 +511,13 @@ AIMegaController ENDP
 
 ;----------------------------------------------
 ;----------------------------------------------
+DebugF PROC param:DWORD
+	ret
+DebugF ENDP
+
 DebugFunction PROC param:DWORD
 	mov eax, param
+	invoke DebugF, param
 	imul eax, 2
 	ret
 DebugFunction ENDP
