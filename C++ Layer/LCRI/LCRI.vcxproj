@@ -151,6 +151,7 @@
     <ClInclude Include="AssemblyLoader.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="LevelEditor.h" />
+    <ClInclude Include="LevelPlayer.h" />
     <ClInclude Include="RoutineClass.h" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +160,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="LCRI.cpp" />
     <ClCompile Include="LevelEditor.cpp" />
+    <ClCompile Include="LevelPlayer.cpp" />
     <ClCompile Include="RoutineClass.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
