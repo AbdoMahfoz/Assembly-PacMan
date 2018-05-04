@@ -195,14 +195,20 @@ void LevelPlayer::Main()
 	AssemblyLoader::InitializeStateData(GetKeyNumber(), &State);
 	AssemblyLoader::MovePacMan();
 	AssemblyLoader::CheckFood(PX1, PX2, PY1, PY2);
-	//AssemblyLoader::CheckDeath();
-	//AssemblyLoader::AIMegaController();
-	if (State)
+	AssemblyLoader::CheckDeath();
+	AssemblyLoader::AIMegaController();
+	if (State != 0)
 	{
 		exit(0);
 	}
 	TranslatePosition(PX1, PX2, PTX);
 	TranslatePosition(PY1, PY2, PTY);
 	Pacman.setPosition(Vector2f((PX1 * RectWidth) + ((PX2 / 10.0f) * RectWidth), (PY1 * RectHeight) + ((PY2 / 10.0f) * RectHeight)));
+	for (int i = 0; i < 4; i++)
+	{
+		TranslatePosition(EX1[i], EX2[i], ETX[i]);
+		TranslatePosition(EY1[i], EY2[i], ETY[i]);
+		Ghost[i].setPosition(Vector2f((EX1[i] * RectWidth) + ((EX2[i] / 10.0f) * RectWidth), (EY1[i] * RectHeight) + ((EY2[i] / 10.0f) * RectHeight)));
+	}
 	UpdateFood();
 }

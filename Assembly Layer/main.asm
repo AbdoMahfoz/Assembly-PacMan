@@ -7,6 +7,9 @@ Key DWORD ?
 LastKey DWORD 0
 State DWORD 0
 Food_Numbers DWORD -1
+LastRand BYTE 4 DUP (5)
+CurrentEnemy DWORD 0
+Randomized BYTE 0
 Grid DWORD ?
 sWidth DWORD ?
 sHeight DWORD ?
@@ -201,7 +204,7 @@ TranslatePosition ENDP
 ;This Function Check the validation of the index on the Grid.
 ;Returns Bool variable called Valid 1 ---> is valid, 0 ----> not valid.
 ValidatePosition PROC X1:DWORD ,Y1:DWORD
-	Push eax
+	Pushad
 	mov eax,X1
 	cmp eax,sWidth
 	jne Next
@@ -236,7 +239,7 @@ next4:
 Not_Valid:
 	mov valid,0
 End_Function:
-	pop eax
+	popad
 	ret 
 ValidatePosition ENDP
 
@@ -289,6 +292,10 @@ CheckFood ENDP
 
 ;Checks the enemy move with the PacMan Move if they are equal the State is Changed to Loser ---> 2.
 CheckDeath PROC PPX1:DWORD,PPX2:DWORD,PPY1:DWORD,PPY2:DWORD,EEX1:DWORD,EEX2:DWORD,EEY1:DWORD,EEY2:DWORD
+invoke TranslatePosition, PPX1, PPX2, PPY1, PPY2
+mov ecx, eax
+mov edx, ebx
+invoke TranslatePosition, EEX1, EEX2, EEY1, EEY2
 mov eax,PPX1
 CMP eax,EEX1
 JZ L1
@@ -309,7 +316,8 @@ CMP eax,EEY2
 JZ L4
 RET
 L4:
-mov [State],2
+mov esi, State
+mov DWORD PTR[esi], 2
 RET
 CheckDeath ENDP
 
@@ -445,23 +453,33 @@ MovePacMan ENDP
 
 ;Calls GenerateRandomNumber Function and checks for validation then moves the Enemies on the new index on the Grid.
 AIController PROC EX1:DWORD, EX2:DWORD, EY1:DWORD, EY2:DWORD, ETX: DWORD, ETY: DWORD
-	Start:
 	Invoke TranslatePosition ,EX1,EX2,EY1,EY2
-	mov edx,FRCX
-	cmp edx,1
-	jz Next
-Continue:
-	mov edx,FRCY
-	cmp edx,1
-	jz Next2
-	jmp Begin
-Next:
-	mov EX2,0
-	jmp Continue
-Next2:
-	mov EY2,0
-Begin:
+	mov Randomized, 0
+	mov esi, offset LastRand
+	add esi, CurrentEnemy
+	mov edx, ETX
+	mov edx, [edx]
+	cmp eax, edx
+	je L1
+	ret
+	L1:
+	mov edx, ETY
+	mov edx, [edx]
+	cmp edx, ebx
+	je L2
+	ret
+	L2:
+	cmp BYTE PTR[esi], 0
+	je MoveDown
+	cmp BYTE PTR[esi], 1
+	je MoveRight
+	cmp BYTE PTR[esi], 2
+	je MoveUp
+	cmp BYTE PTR[esi], 3
+	je MoveLeft
+	RR:
 	call GenerateRandomNumber	
+	mov Randomized, 1
 	cmp RandomNumber , 0
 	Je MoveDown
 	cmp RandomNumber , 1
@@ -472,26 +490,42 @@ Begin:
 	Je MoveLeft
 MoveDown: 
 	Inc ebx
-	jmp Cont
+	invoke ValidatePosition ,eax, ebx 
+	cmp valid, 1
+	mov BYTE PTR[esi], 0
+	je correct
+	dec ebx
+	cmp Randomized, 0
+	je RR
 MoveUp: 
 	Dec ebx
-	jmp Cont
+	invoke ValidatePosition ,eax, ebx 
+	cmp valid, 1
+	mov BYTE PTR[esi], 2
+	je correct
+	inc ebx
+	cmp Randomized, 0
+	je RR
 MoveRight:
 	inc eax
-	jmp Cont
+	invoke ValidatePosition ,eax, ebx 
+	cmp valid, 1
+	mov BYTE PTR[esi], 1
+	je correct
+	dec eax
+	cmp Randomized, 0
+	je RR
 MoveLeft:
 	dec eax
-	jmp Cont
-Cont: 
-	push eax
-	push ebx
 	invoke ValidatePosition ,eax, ebx 
-	pop ebx
-	pop eax
-	cmp valid,1
-	je correct 
-	jmp Start
-	correct:
+	cmp valid, 1
+	mov BYTE PTR[esi], 3
+	je correct
+	inc eax
+	cmp Randomized, 0
+	je RR
+	jmp MoveDown
+correct:
 	mov EX1,eax
 	mov EY1,ebx
 	mov edx,ETX
@@ -503,9 +537,13 @@ AIController ENDP
 
 ;Calls the AIController Function for all enemies.
 AIMegaController PROC
+mov CurrentEnemy, 0
 invoke AIController ,E1X1 ,E1X2,E1Y1 ,E1Y2 ,E1TX ,E1TY
+mov CurrentEnemy, 1
 invoke AIController ,E2X1 ,E2X2,E2Y1 ,E2Y2 ,E2TX ,E2TY
+mov CurrentEnemy, 2
 invoke AIController ,E3X1 ,E3X2,E3Y1 ,E3Y2 ,E3TX ,E3TY
+mov CurrentEnemy, 3
 invoke AIController ,E4X1 ,E4X2,E4Y1 ,E4Y2 ,E4TX ,E4TY
 ret
 AIMegaController ENDP
